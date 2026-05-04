@@ -3,11 +3,14 @@
 #include "leds.hpp"
 #include "match.hpp"
 #include "param.hpp"
+#include "ros.h"
+
 #include <Arduino.h>
 
 
 void setup() {
   comm_init();
+  init_ros();
   leds_init();
   display_init();
   delay(2000);
@@ -32,6 +35,8 @@ void loop() {
 
     display_update_match(tempsRestant, globalScore, isTeamBlue, matchState);
   }
+
+  ros_loop();
 
   delay(5);
 }
