@@ -3,11 +3,11 @@
 
 // États du match
 enum MatchState {
-    UNINITIALIZED, // Sécurité : Bloqué tant que pas de QX
-    WAITING,       // Prêt, attend le jumper
-    RUNNING,       // Match en cours (100s)
-    FINISHED,      // Fin de match
-    EMERGENCY_STOP // Arrêt d'Urgence (bloquant)
+  UNINITIALIZED, // Sécurité : Bloqué tant que pas de QX
+  WAITING,       // Prêt, attend le jumper
+  RUNNING,       // Match en cours (100s)
+  FINISHED,      // Fin de match
+  EMERGENCY_STOP // Arrêt d'Urgence (bloquant)
 };
 
 // Variables globales
@@ -21,4 +21,4 @@ extern int globalScore;
 void match_init();
 void match_update();
 bool match_check_starter();
-void match_remote_start(); 
+void match_remote_start();
