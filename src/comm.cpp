@@ -91,9 +91,4 @@ void process_command(String cmd) {
 
 // --- ENVOI (IHM -> ZDC) ---
 
-void comm_send_starter(bool state) {
-  if (!state)
-    Serial.println("STF");
-}
-
 void comm_send_reset() { Serial.println("RSF"); }

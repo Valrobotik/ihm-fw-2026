@@ -3,7 +3,9 @@
 states state;
 
 rcl_publisher_t publisher_team;
+rcl_publisher_t publisher_start;
 std_msgs__msg__String msg_team;
+std_msgs__msg__Int8 msg_start;
 std_msgs__msg__Bool received_msg_drop;
 std_msgs__msg__Empty received_msg_zdc_handshake;
 rclc_support_t support;
@@ -51,6 +53,12 @@ bool create_entities() {
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
     "/team"));
 
+  RCCHECK(rclc_publisher_init_best_effort(
+    &publisher_start,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int8),
+    "/state"));
+
   RCCHECK(rclc_executor_init(&executor, &support.context, 1, &allocator));
   RCCHECK(rclc_subscription_init_default(&subscriber_zdc_handshake, &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Empty),
@@ -68,6 +76,7 @@ void destroy_entities() {
   (void) rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   (void) rcl_publisher_fini(&publisher_team, &node);
+  (void) rcl_publisher_fini(&publisher_start, &node);
   (void) rclc_executor_fini(&executor);
   (void) rcl_subscription_fini(&subscriber_zdc_handshake, &node);
   (void) rcl_node_fini(&node);
@@ -114,5 +123,14 @@ bool comm_send_team(bool isBlue) {
     rosidl_runtime_c__String__assign(&msg_team.data, "yellow");
   }
   RCCHECK(rcl_publish(&publisher_team, &msg_team, NULL));
+  return true;
+}
+
+bool comm_send_starter(bool state) {
+  if (state) {
+    return true;
+  }
+  msg_start.data = 2;
+  RCCHECK(rcl_publish(&publisher_start, &msg_start, NULL));
   return true;
 }
