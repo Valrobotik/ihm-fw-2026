@@ -6,6 +6,7 @@
 #include <rclc/executor.h>
 #include <std_msgs/msg/bool.h>
 #include <std_msgs/msg/empty.h>
+#include <std_msgs/msg/string.h>
 #include <rosidl_runtime_c/string_functions.h>
 
 #include "match.hpp"
@@ -33,3 +34,5 @@ enum class states {
 
 void init_ros();
 void ros_loop();
+
+bool comm_send_team(bool isBlue);

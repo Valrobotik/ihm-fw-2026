@@ -2,6 +2,7 @@
 #include "comm.hpp"
 #include "leds.hpp"
 #include "param.hpp"
+#include "ros.h"
 
 
 // Variables globales

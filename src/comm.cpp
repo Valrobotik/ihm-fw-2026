@@ -36,16 +36,8 @@ void process_command(String cmd) {
 
   // --- RECEPTION (ZDC -> IHM) ---
 
-  // QX : Init / Reset Global
-  if (cmd_type == "QX") {
-    Serial.println("IHM");
-    leds_set_color(COLOR_WHITE);
-    display_init();
-    matchState = WAITING; // Débloque le robot
-  }
-
   // T0 : Force Equipe BLEUE
-  else if (cmd_type == "T0") {
+  if (cmd_type == "T0") {
     isTeamBlue = true;
     leds_set_color(COLOR_BLUE);
     display_update_match(100, globalScore, isTeamBlue, matchState);
@@ -98,13 +90,6 @@ void process_command(String cmd) {
 }
 
 // --- ENVOI (IHM -> ZDC) ---
-
-void comm_send_team(bool isBlue) {
-  if (isBlue)
-    Serial.println("TBF");
-  else
-    Serial.println("TYF");
-}
 
 void comm_send_starter(bool state) {
   if (!state)
