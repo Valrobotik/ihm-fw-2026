@@ -8,6 +8,7 @@
 #include <std_msgs/msg/empty.h>
 #include <std_msgs/msg/string.h>
 #include <std_msgs/msg/int8.h>
+#include <std_msgs/msg/int32.h>
 #include <rosidl_runtime_c/string_functions.h>
 #include <micro_ros_utilities/string_utilities.h>
 

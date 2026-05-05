@@ -45,22 +45,6 @@ void process_command(String cmd) {
     // Force l'affichage immédiat pour être sûr
     display_update_match(0, globalScore, isTeamBlue, matchState);
   }
-
-  // SC : Score Update
-  else if (cmd_type == "SC") {
-    String valStr = cmd.substring(2);
-    globalScore = valStr.toInt();
-
-    Serial.printf("Score Update: %d\n", globalScore);
-
-    int tempsRestant = 100;
-    if (matchState == RUNNING) {
-      tempsRestant = 100 - ((millis() - matchStartTime) / 1000);
-    } else if (matchState == FINISHED) {
-      tempsRestant = 0;
-    }
-    display_update_match(tempsRestant, globalScore, isTeamBlue, matchState);
-  }
 }
 
 // --- ENVOI (IHM -> ZDC) ---

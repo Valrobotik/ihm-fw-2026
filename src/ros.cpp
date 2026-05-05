@@ -9,12 +9,14 @@ std_msgs__msg__Int8 msg_start;
 std_msgs__msg__String received_msg_team;
 std_msgs__msg__Empty received_msg_zdc_handshake;
 std_msgs__msg__Int8 received_msg_state;
+std_msgs__msg__Int32 received_msg_score;
 rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
 rcl_subscription_t subscriber_team;
 rcl_subscription_t subscriber_zdc_handshake;
 rcl_subscription_t subscriber_state;
+rcl_subscription_t subscriber_score;
 rclc_executor_t executor;
 
 void init_ros() {
@@ -63,6 +65,18 @@ void StateCallback(const void* msgin) {
   }
 }
 
+void ScoreCallback(const void* msgin) {
+  const std_msgs__msg__Int32* msg = (const std_msgs__msg__Int32*)msgin;
+  globalScore = msg->data;
+  Serial.printf("Score Update: %d\n", globalScore);
+  int tempsRestant = 100;
+  if (matchState == RUNNING) {
+    tempsRestant = 100 - ((millis() - matchStartTime) / 1000);
+  } else if (matchState == FINISHED) {
+    tempsRestant = 0;
+  }
+  display_update_match(tempsRestant, globalScore, isTeamBlue, matchState);
+}
 
 bool create_entities() {
   allocator = rcl_get_default_allocator();
@@ -85,7 +99,7 @@ bool create_entities() {
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int8),
     "/state"));
 
-  RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
+  RCCHECK(rclc_executor_init(&executor, &support.context, 3, &allocator));
 
   RCCHECK(rclc_subscription_init_default(&subscriber_team, &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
@@ -96,11 +110,16 @@ bool create_entities() {
   RCCHECK(rclc_subscription_init_default(&subscriber_state, &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int8),
     "/state"));
+  RCCHECK(rclc_subscription_init_default(&subscriber_score, &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
+    "/score"));
 
   RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_team, &received_msg_team,
       &TeamCallback, ON_NEW_DATA));
   RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_zdc_handshake, &received_msg_zdc_handshake,
       &ZdcHandshakeCallback, ON_NEW_DATA));
+  RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_score, &received_msg_score,
+      &ScoreCallback, ON_NEW_DATA));
 
   return true;
 }
@@ -115,6 +134,7 @@ void destroy_entities() {
   (void) rcl_subscription_fini(&subscriber_team, &node);
   (void) rcl_subscription_fini(&subscriber_zdc_handshake, &node);
   (void) rcl_subscription_fini(&subscriber_state, &node);
+  (void) rcl_subscription_fini(&subscriber_score, &node);
   (void) rcl_node_fini(&node);
   rclc_support_fini(&support);
 }
