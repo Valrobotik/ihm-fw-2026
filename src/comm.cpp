@@ -36,21 +36,8 @@ void process_command(String cmd) {
 
   // --- RECEPTION (ZDC -> IHM) ---
 
-  // T0 : Force Equipe BLEUE
-  if (cmd_type == "T0") {
-    isTeamBlue = true;
-    leds_set_color(COLOR_BLUE);
-    display_update_match(100, globalScore, isTeamBlue, matchState);
-  }
-  // T1 : Force Equipe JAUNE
-  else if (cmd_type == "T1") {
-    isTeamBlue = false;
-    leds_set_color(COLOR_YELLOW);
-    display_update_match(100, globalScore, isTeamBlue, matchState);
-  }
-
   // MS : Start Match (Remote)
-  else if (cmd_type == "MS") {
+  if (cmd_type == "MS") {
     match_remote_start();
     Serial.println("ACK: Match Started by ZDC");
   }

@@ -6,12 +6,12 @@ rcl_publisher_t publisher_team;
 rcl_publisher_t publisher_start;
 std_msgs__msg__String msg_team;
 std_msgs__msg__Int8 msg_start;
-std_msgs__msg__Bool received_msg_drop;
+std_msgs__msg__String received_msg_team;
 std_msgs__msg__Empty received_msg_zdc_handshake;
 rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
-rcl_subscription_t subscriber_drop;
+rcl_subscription_t subscriber_team;
 rcl_subscription_t subscriber_zdc_handshake;
 rclc_executor_t executor;
 
@@ -37,6 +37,20 @@ void ZdcHandshakeCallback(const void* msgin) {
   matchState = WAITING; // Débloque le robot
 }
 
+void TeamCallback(const void* msgin) {
+  const std_msgs__msg__String* msg = (const std_msgs__msg__String*)msgin;
+  ;
+  if (strcmp(msg->data.data, "blue")) {
+    isTeamBlue = true;
+    leds_set_color(COLOR_BLUE);
+    display_update_match(100, globalScore, isTeamBlue, matchState);
+  } else {
+    isTeamBlue = false;
+    leds_set_color(COLOR_YELLOW);
+    display_update_match(100, globalScore, isTeamBlue, matchState);
+  }
+}
+
 
 bool create_entities() {
   allocator = rcl_get_default_allocator();
@@ -59,14 +73,19 @@ bool create_entities() {
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int8),
     "/state"));
 
-  RCCHECK(rclc_executor_init(&executor, &support.context, 1, &allocator));
+  RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
+
+  RCCHECK(rclc_subscription_init_default(&subscriber_team, &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
+    "/team"));
   RCCHECK(rclc_subscription_init_default(&subscriber_zdc_handshake, &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Empty),
     "/zdc_vision/handshake"));
 
+  RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_team, &received_msg_team,
+      &TeamCallback, ON_NEW_DATA));
   RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_zdc_handshake, &received_msg_zdc_handshake,
       &ZdcHandshakeCallback, ON_NEW_DATA));
-  Serial.println("added all");
 
   return true;
 }

@@ -9,6 +9,7 @@
 #include <std_msgs/msg/string.h>
 #include <std_msgs/msg/int8.h>
 #include <rosidl_runtime_c/string_functions.h>
+#include <micro_ros_utilities/string_utilities.h>
 
 #include "match.hpp"
 #include "param.hpp"
@@ -32,6 +33,7 @@ enum class states {
   AGENT_DISCONNECTED
 };
 
+extern bool isTeamBlue;
 
 void init_ros();
 void ros_loop();
