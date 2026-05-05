@@ -8,11 +8,13 @@ std_msgs__msg__String msg_team;
 std_msgs__msg__Int8 msg_start;
 std_msgs__msg__String received_msg_team;
 std_msgs__msg__Empty received_msg_zdc_handshake;
+std_msgs__msg__Int8 received_msg_state;
 rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
 rcl_subscription_t subscriber_team;
 rcl_subscription_t subscriber_zdc_handshake;
+rcl_subscription_t subscriber_state;
 rclc_executor_t executor;
 
 void init_ros() {
@@ -39,7 +41,6 @@ void ZdcHandshakeCallback(const void* msgin) {
 
 void TeamCallback(const void* msgin) {
   const std_msgs__msg__String* msg = (const std_msgs__msg__String*)msgin;
-  ;
   if (strcmp(msg->data.data, "blue")) {
     isTeamBlue = true;
     leds_set_color(COLOR_BLUE);
@@ -48,6 +49,17 @@ void TeamCallback(const void* msgin) {
     isTeamBlue = false;
     leds_set_color(COLOR_YELLOW);
     display_update_match(100, globalScore, isTeamBlue, matchState);
+  }
+}
+
+void StateCallback(const void* msgin) {
+  const std_msgs__msg__Int8* msg = (const std_msgs__msg__Int8*)msgin;
+  switch (msg->data) {
+    case 3:
+      matchState = FINISHED;
+      leds_set_color(COLOR_RED);
+      Serial.println("ACK: Match Ended by ZDC");
+      break;
   }
 }
 
@@ -81,6 +93,9 @@ bool create_entities() {
   RCCHECK(rclc_subscription_init_default(&subscriber_zdc_handshake, &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Empty),
     "/zdc_vision/handshake"));
+  RCCHECK(rclc_subscription_init_default(&subscriber_state, &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int8),
+    "/state"));
 
   RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_team, &received_msg_team,
       &TeamCallback, ON_NEW_DATA));
@@ -97,7 +112,9 @@ void destroy_entities() {
   (void) rcl_publisher_fini(&publisher_team, &node);
   (void) rcl_publisher_fini(&publisher_start, &node);
   (void) rclc_executor_fini(&executor);
+  (void) rcl_subscription_fini(&subscriber_team, &node);
   (void) rcl_subscription_fini(&subscriber_zdc_handshake, &node);
+  (void) rcl_subscription_fini(&subscriber_state, &node);
   (void) rcl_node_fini(&node);
   rclc_support_fini(&support);
 }

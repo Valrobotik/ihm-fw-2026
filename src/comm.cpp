@@ -36,21 +36,8 @@ void process_command(String cmd) {
 
   // --- RECEPTION (ZDC -> IHM) ---
 
-  // MS : Start Match (Remote)
-  if (cmd_type == "MS") {
-    match_remote_start();
-    Serial.println("ACK: Match Started by ZDC");
-  }
-
-  // EM : End Match (Fin forcée)
-  else if (cmd_type == "EM") {
-    matchState = FINISHED;
-    leds_set_color(COLOR_RED);
-    Serial.println("ACK: Match Ended by ZDC");
-  }
-
   // AU : Arrêt d'Urgence (CRITIQUE)
-  else if (cmd_type == "AU") {
+  if (cmd_type == "AU") {
     matchState = EMERGENCY_STOP;
     leds_set_color(COLOR_RED);
     Serial.println("ALERTE: AU RECU DE ZDC !");
