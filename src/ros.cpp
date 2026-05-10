@@ -39,7 +39,7 @@ void ZdcHandshakeCallback(const void* msgin) {
 
 void TeamCallback(const void* msgin) {
   const std_msgs__msg__String* msg = (const std_msgs__msg__String*)msgin;
-  if (strcmp(msg->data.data, "blue")) {
+  if (!strcmp(msg->data.data, "blue")) {
     isTeamBlue = true;
     leds_set_color(COLOR_BLUE);
     display_update_match(100, globalScore, isTeamBlue, matchState);
