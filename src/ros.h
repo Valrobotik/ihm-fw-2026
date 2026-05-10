@@ -41,3 +41,4 @@ void ros_loop();
 
 bool comm_send_team(bool isBlue);
 bool comm_send_starter(bool state);
+bool comm_send_reset();

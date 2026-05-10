@@ -192,3 +192,9 @@ bool comm_send_starter(bool state) {
   RCCHECK(rcl_publish(&publisher_start, &msg_start, NULL));
   return true;
 }
+
+bool comm_send_reset() {
+  msg_start.data = 3;
+  RCCHECK(rcl_publish(&publisher_start, &msg_start, NULL));
+  return true;
+}

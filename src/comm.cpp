@@ -46,7 +46,3 @@ void process_command(String cmd) {
     display_update_match(0, globalScore, isTeamBlue, matchState);
   }
 }
-
-// --- ENVOI (IHM -> ZDC) ---
-
-void comm_send_reset() { Serial.println("RSF"); }
