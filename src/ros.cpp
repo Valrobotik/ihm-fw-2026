@@ -18,6 +18,7 @@ rcl_subscription_t subscriber_zdc_handshake;
 rcl_subscription_t subscriber_state;
 rcl_subscription_t subscriber_score;
 rclc_executor_t executor;
+rcl_init_options_t init_options;
 
 std_msgs__msg__String msg_drop;
 rcl_publisher_t publisher_slider;
@@ -85,7 +86,8 @@ void StateCallback(const void* msgin) {
 
 bool create_entities() {
   allocator = rcl_get_default_allocator();
-  rcl_init_options_t init_options = rcl_get_zero_initialized_init_options();
+  node = rcl_get_zero_initialized_node();
+  init_options = rcl_get_zero_initialized_init_options();
   RCCHECK(rcl_init_options_init(&init_options, allocator));
   RCCHECK(rcl_init_options_set_domain_id(&init_options, 42));
 
@@ -181,8 +183,8 @@ void destroy_entities() {
   (void) rcl_subscription_fini(&subscriber_state, &node);
   (void) rcl_subscription_fini(&subscriber_score, &node);
   (void) rcl_node_fini(&node);
-  rclc_support_fini(&support);
-
+  (void) rclc_support_fini(&support);
+  (void) rcl_init_options_fini(&init_options);
   std_msgs__msg__String__fini(&received_msg_team);
 }
 
