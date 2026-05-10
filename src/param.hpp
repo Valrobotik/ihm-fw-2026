@@ -6,6 +6,9 @@
 #define TEAM_B_PIN      12
 #define STARTER_PIN     11   
 #define RGB_LEDS_PIN    45
+#define BTN_A_PIN       18
+#define BTN_B_PIN       17
+#define BTN_C_PIN      10
 
 // --- LEDS CONFIG ---
 #define NUM_LEDS        3

@@ -19,6 +19,13 @@ rcl_subscription_t subscriber_state;
 rcl_subscription_t subscriber_score;
 rclc_executor_t executor;
 
+std_msgs__msg__String msg_drop;
+rcl_publisher_t publisher_slider;
+rcl_publisher_t publisher_open;
+rcl_publisher_t publisher_grab;
+rcl_publisher_t publisher_noisette;
+rcl_publisher_t publisher_drop;
+
 void init_ros() {
   Serial.printf("Connecting to ap: %s\n", ENV_WIFI_SSID);
   IPAddress agent_ip(ENV_AGENT_IP);
@@ -90,15 +97,43 @@ bool create_entities() {
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
     "/team"));
-
   RCCHECK(rclc_publisher_init_default(
     &publisher_start,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int8),
     "/state"));
 
+  RCCHECK(rclc_publisher_init_default(
+    &publisher_slider,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Bool),
+    "/slider"));
+  RCCHECK(rclc_publisher_init_default(
+    &publisher_open,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Bool),
+    "/open"));
+  RCCHECK(rclc_publisher_init_default(
+    &publisher_grab,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Bool),
+    "/grab"));
+  RCCHECK(rclc_publisher_init_default(
+    &publisher_noisette,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Bool),
+    "/pami/noisette"));
+  RCCHECK(rclc_publisher_init_default(
+    &publisher_drop,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
+    "/drop"));
+
   RCCHECK(rclc_executor_init(&executor, &support.context, 4, &allocator));
 
+  msg_drop.data.data = (char*) malloc(5);
+  msg_drop.data.capacity = 5;
+  msg_drop.data.size = 0;
   std_msgs__msg__String__init(&received_msg_team);
   received_msg_team.data.data = (char*) malloc(10);
   received_msg_team.data.capacity = 10;
@@ -134,6 +169,12 @@ void destroy_entities() {
 
   (void) rcl_publisher_fini(&publisher_team, &node);
   (void) rcl_publisher_fini(&publisher_start, &node);
+
+  (void) rcl_publisher_fini(&publisher_slider, &node);
+  (void) rcl_publisher_fini(&publisher_open, &node);
+  (void) rcl_publisher_fini(&publisher_grab, &node);
+  (void) rcl_publisher_fini(&publisher_noisette, &node);
+  (void) rcl_publisher_fini(&publisher_drop, &node);
   (void) rclc_executor_fini(&executor);
   (void) rcl_subscription_fini(&subscriber_team, &node);
   (void) rcl_subscription_fini(&subscriber_zdc_handshake, &node);
@@ -200,5 +241,65 @@ bool comm_send_starter(bool state) {
 bool comm_send_reset() {
   msg_start.data = 3;
   RCCHECK(rcl_publish(&publisher_start, &msg_start, NULL));
+  return true;
+}
+
+bool handle_c_click(Button2& b) {
+  std_msgs__msg__Bool msg_slider;
+  msg_slider.data = true;
+  RCCHECK(rcl_publish(&publisher_slider, &msg_slider, NULL));
+  return true;
+}
+
+bool handle_c_double_click(Button2& b) {
+  std_msgs__msg__Bool msg_slider;
+  msg_slider.data = false;
+  RCCHECK(rcl_publish(&publisher_slider, &msg_slider, NULL));
+  return true;
+}
+
+bool handle_c_triple_click(Button2& b) {
+  std_msgs__msg__Bool msg;
+  msg.data = true;
+  RCCHECK(rcl_publish(&publisher_noisette, &msg, NULL));
+  return true;
+}
+
+bool handle_c_long_click(Button2& b) {
+  std_msgs__msg__Bool msg;
+  msg.data = false;
+  RCCHECK(rcl_publish(&publisher_noisette, &msg, NULL));
+  return true;
+}
+
+bool handle_b_click(Button2& b) {
+  std_msgs__msg__Bool msg_open;
+  msg_open.data = true;
+  RCCHECK(rcl_publish(&publisher_open, &msg_open, NULL));
+  return true;
+}
+
+bool handle_b_double_click(Button2& b) {
+  std_msgs__msg__Bool msg_grab;
+  msg_grab.data = true;
+  RCCHECK(rcl_publish(&publisher_grab, &msg_grab, NULL));
+  return true;
+}
+
+bool handle_a_click(Button2& b) {
+  rosidl_runtime_c__String__assign(&msg_drop.data, "0000");
+  RCCHECK(rcl_publish(&publisher_drop, &msg_drop, NULL));
+  return true;
+}
+
+bool handle_a_double_click(Button2& b) {
+  rosidl_runtime_c__String__assign(&msg_drop.data, "1111");
+  RCCHECK(rcl_publish(&publisher_drop, &msg_drop, NULL));
+  return true;
+}
+
+bool handle_a_triple_click(Button2& b) {
+  rosidl_runtime_c__String__assign(&msg_drop.data, "0101");
+  RCCHECK(rcl_publish(&publisher_drop, &msg_drop, NULL));
   return true;
 }

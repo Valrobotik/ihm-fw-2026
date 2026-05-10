@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Button2.h>
 #include <micro_ros_platformio.h>
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
@@ -42,3 +43,13 @@ void ros_loop();
 bool comm_send_team(bool isBlue);
 bool comm_send_starter(bool state);
 bool comm_send_reset();
+
+bool handle_a_click(Button2& b);
+bool handle_a_double_click(Button2& b);
+bool handle_a_triple_click(Button2& b);
+bool handle_b_click(Button2& b);
+bool handle_b_double_click(Button2& b);
+bool handle_c_click(Button2& b);
+bool handle_c_double_click(Button2& b);
+bool handle_c_triple_click(Button2& b);
+bool handle_c_long_click(Button2& b);
