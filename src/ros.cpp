@@ -50,17 +50,6 @@ void TeamCallback(const void* msgin) {
   }
 }
 
-void StateCallback(const void* msgin) {
-  const std_msgs__msg__Int8* msg = (const std_msgs__msg__Int8*)msgin;
-  switch (msg->data) {
-    case 3:
-      matchState = FINISHED;
-      leds_set_color(COLOR_RED);
-      Serial.println("ACK: Match Ended by ZDC");
-      break;
-  }
-}
-
 void ScoreCallback(const void* msgin) {
   const std_msgs__msg__Int32* msg = (const std_msgs__msg__Int32*)msgin;
   globalScore = msg->data;

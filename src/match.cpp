@@ -64,7 +64,7 @@ void match_read_team() {
 bool match_check_starter() { return (digitalRead(STARTER_PIN) == HIGH); }
 
 void match_remote_start() {
-  if (matchState == WAITING) {
+  if (matchState == WAITING || matchState == FINISHED) {
     matchState = RUNNING;
     matchStartTime = millis();
     isRemoteStart = true;
