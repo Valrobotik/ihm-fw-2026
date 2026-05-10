@@ -74,6 +74,19 @@ void ScoreCallback(const void* msgin) {
   display_update_match(tempsRestant, globalScore, isTeamBlue, matchState);
 }
 
+void StateCallback(const void* msgin) {
+  const std_msgs__msg__Int8* msg = (const std_msgs__msg__Int8*)msgin;
+  switch (msg->data) {
+  case 2:
+    match_remote_start();
+    break;
+  case 3:
+    matchState = FINISHED;
+    leds_set_color(COLOR_RED);
+    break;
+  }
+}
+
 bool create_entities() {
   allocator = rcl_get_default_allocator();
   rcl_init_options_t init_options = rcl_get_zero_initialized_init_options();
@@ -95,7 +108,7 @@ bool create_entities() {
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int8),
     "/state"));
 
-  RCCHECK(rclc_executor_init(&executor, &support.context, 3, &allocator));
+  RCCHECK(rclc_executor_init(&executor, &support.context, 4, &allocator));
 
   std_msgs__msg__String__init(&received_msg_team);
   received_msg_team.data.data = (char*) malloc(10);
@@ -118,6 +131,8 @@ bool create_entities() {
       &TeamCallback, ON_NEW_DATA));
   RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_zdc_handshake, &received_msg_zdc_handshake,
       &ZdcHandshakeCallback, ON_NEW_DATA));
+  RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_state, &received_msg_state,
+      &StateCallback, ON_NEW_DATA));
   RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_score, &received_msg_score,
       &ScoreCallback, ON_NEW_DATA));
 
