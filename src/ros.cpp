@@ -29,11 +29,12 @@ void init_ros() {
 }
 
 void ZdcHandshakeCallback(const void* msgin) {
-  const std_msgs__msg__Empty* msg = (const std_msgs__msg__Empty*)msgin;
-  Serial.println("IHM");
-  leds_set_color(COLOR_WHITE);
-  display_init();
-  matchState = WAITING; // Débloque le robot
+  if (matchState = WAITING) return;
+    const std_msgs__msg__Empty* msg = (const std_msgs__msg__Empty*)msgin;
+    Serial.println("IHM");
+    leds_set_color(COLOR_WHITE);
+    display_init();
+    matchState = WAITING; // Débloque le robot
 }
 
 void TeamCallback(const void* msgin) {
