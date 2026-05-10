@@ -97,6 +97,10 @@ bool create_entities() {
 
   RCCHECK(rclc_executor_init(&executor, &support.context, 3, &allocator));
 
+  std_msgs__msg__String__init(&received_msg_team);
+  received_msg_team.data.data = (char*) malloc(10);
+  received_msg_team.data.capacity = 10;
+  received_msg_team.data.size = 0;
   RCCHECK(rclc_subscription_init_default(&subscriber_team, &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
     "/team"));
@@ -133,6 +137,8 @@ void destroy_entities() {
   (void) rcl_subscription_fini(&subscriber_score, &node);
   (void) rcl_node_fini(&node);
   rclc_support_fini(&support);
+
+  std_msgs__msg__String__fini(&received_msg_team);
 }
 
 void ros_loop() {
